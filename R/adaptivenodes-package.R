@@ -1,6 +1,6 @@
 ## usethis namespace: start
 #' @importFrom Rcpp sourceCpp
-#' @importFrom stats runif
+#' @importFrom stats runif complete.cases
 #' @importFrom MASS mvrnorm
 ## usethis namespace: end
 NULL

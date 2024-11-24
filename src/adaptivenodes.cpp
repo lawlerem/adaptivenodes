@@ -48,6 +48,13 @@ Eigen::MatrixXd cross_distance(
     return d;
 }
 
+Eigen::VectorXd vector_projection(
+        const Eigen::VectorXd a,
+        const Eigen::VectorXd b
+    ) {
+    return (a.dot(b) / b.dot(b)) * b;
+}
+
 double data_penalty(
         const Eigen::MatrixXd &data,
         const Eigen::MatrixXd &nodes,
@@ -60,8 +67,14 @@ double data_penalty(
     );
     Eigen::VectorXd data_min = d.rowwise().minCoeff();
     Eigen::VectorXd node_min = d.colwise().minCoeff();
-    double penalty = data_min.sum() + node_min.sum() + 10 * node_min.maxCoeff();
-    return penalty;
+    Eigen::VectorXd weights(4); 
+    weights << 0.4, 0.1, 0.4, 0.1;
+    Eigen::VectorXd penalties(4);
+    penalties << data_min.mean(), 
+        data_min.maxCoeff(),
+        node_min.mean(),
+        node_min.maxCoeff();
+    return vector_projection(penalties, weights).sum();
 }
 
 double node_penalty(
@@ -72,12 +85,16 @@ double node_penalty(
         nodes,
         precision
     );
-    Eigen::VectorXd min_d(nodes.rows() - 1);
-    for(int i = 0; i < min_d.size(); i++) {
-        min_d(i) = d.col(i + 1).head(i + 1).minCoeff();
+    Eigen::VectorXd weights(2);
+    weights << 0.8, 0.2;
+    Eigen::VectorXd inv_min_d(nodes.rows() - 1);
+    for(int i = 0; i < inv_min_d.size(); i++) {
+        inv_min_d(i) = 1.0 / d.col(i + 1).head(i + 1).minCoeff();
     }
-    double penalty = (1 / min_d.array()).sum();
-    return penalty;
+    Eigen::VectorXd penalties(2);
+    penalties << inv_min_d.mean(),
+        inv_min_d.maxCoeff();
+    return vector_projection(penalties, weights).sum();
 }
 
 // [[Rcpp::export("penalty_function")]]
@@ -87,17 +104,19 @@ double penalty_function(
         const Eigen::MatrixXd &data_precision,
         const Eigen::MatrixXd &node_precision
     ) {
-    double ans = 0.0;
-    ans += data_penalty(
-        data,
-        nodes,
-        data_precision
-    );
-    ans += node_penalty(
-        nodes,
-        node_precision
-    );
-    return ans;
+    Eigen::VectorXd weights(2);
+    weights << 0.5, 0.5;
+    Eigen::VectorXd penalties(2);
+    penalties << data_penalty(
+            data,
+            nodes,
+            data_precision
+        ), 
+        node_penalty(
+            nodes,
+            node_precision
+        );
+    return vector_projection(penalties, weights).sum();
 }
 
 

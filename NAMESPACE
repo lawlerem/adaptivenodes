@@ -3,5 +3,6 @@
 export(adaptive_nodes)
 importFrom(MASS,mvrnorm)
 importFrom(Rcpp,sourceCpp)
+importFrom(stats,complete.cases)
 importFrom(stats,runif)
 useDynLib(adaptivenodes, .registration = TRUE)

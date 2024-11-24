@@ -1,6 +1,6 @@
 Package: adaptivenodes
 Title: Find the Best Set of Nodes to Cover a Dataset
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: 
     person("Ethan", "Lawler", , "lawlerem@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-6225-3009"))

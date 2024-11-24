@@ -3,6 +3,12 @@
 #' @param data A matrix of data points. Each row should be a data point.
 #' @param n_nodes The number of nodes to cover the dataset.
 #' @param max.it The number of iterations to use when finding the best set of nodes.
+#' @param distance_type The type of distance to compute.
+#'   - mahalanobis-scott takes into account the global covariate structure of the data with a scale adjustment for the dimension and number of data points.
+#'   - mahalanobis is the same as mahalanobis-scott without the adjustment for dimension and number of data points.
+#'   - independent-scott take into account the global variance of each dimension but not the correlation between coordinates with a scale adjustment for the dimension and number of data points.
+#'   - independent is the same as independent-scott without the adjustment for dimension and number of data points.
+#'   - euclidean is the standard euclidean distance.
 #' 
 #' @return A list giving the nodes and the objective function trajectory.
 #' 
@@ -10,13 +16,37 @@
 adaptive_nodes<- function(
         data,
         n_nodes = 10,
-        max.it = 100
+        max.it = 100,
+        distance_type = c(
+            "mahalanobis-scott",
+            "mahalanobis",
+            "independent-scott",
+            "independent",
+            "euclidean"
+        )
     ) {
     if( !("matrix" %in% class(data)) ) data<- as.matrix(data)
+    data<- data[complete.cases(data), ]
     cov<- cov(data)
     precision<- solve(cov)
-    data_precision<- precision * nrow(data) ^ (1 / (ncol(data) + 4))
-    node_precision<- precision * n_nodes ^ (1 / (ncol(data) + 4))
+    if( distance_type[[1]] == "mahalanobis-scott" ) {
+        data_precision<- precision * nrow(data) ^ (1 / (ncol(data) + 4))
+        node_precision<- precision * n_nodes ^ (1 / (ncol(data) + 4))   
+    } else if( distance_type[[1]] == "mahalanobis" ) {
+        data_precision<- precision
+        node_precision<- precision
+    } else if( distance_type[[1]] == "independent-scott" ) {
+        data_precision<- diag(diag(cov)^-1) * nrow(data) ^ (1 / (ncol(data) + 4))
+        node_precision<- diag(diag(cov)^-1) * n_nodes ^ (1 / (ncol(data) + 4))
+    } else if( distance_type[[1]] == "independent" ) {
+        data_precision<- diag(diag(cov)^-1)
+        node_precision<- data_precision
+    } else if( distance_type[[1]] == "euclidean" ) {
+        data_precision<- diag(ncol(data))
+        node_precision<- diag(ncol(data))
+    } else {
+        stop("Distance type node recognized.")
+    }
     node_cov<- solve(node_precision)
 
     penalty_history<- numeric(max.it + 1)

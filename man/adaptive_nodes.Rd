@@ -4,7 +4,13 @@
 \alias{adaptive_nodes}
 \title{Find a set of nodes to cover a dataset}
 \usage{
-adaptive_nodes(data, n_nodes = 10, max.it = 100)
+adaptive_nodes(
+  data,
+  n_nodes = 10,
+  max.it = 100,
+  distance_type = c("mahalanobis-scott", "mahalanobis", "independent-scott",
+    "independent", "euclidean")
+)
 }
 \arguments{
 \item{data}{A matrix of data points. Each row should be a data point.}
@@ -12,6 +18,15 @@ adaptive_nodes(data, n_nodes = 10, max.it = 100)
 \item{n_nodes}{The number of nodes to cover the dataset.}
 
 \item{max.it}{The number of iterations to use when finding the best set of nodes.}
+
+\item{distance_type}{The type of distance to compute.
+\itemize{
+\item mahalanobis-scott takes into account the global covariate structure of the data with a scale adjustment for the dimension and number of data points.
+\item mahalanobis is the same as mahalanobis-scott without the adjustment for dimension and number of data points.
+\item independent-scott take into account the global variance of each dimension but not the correlation between coordinates with a scale adjustment for the dimension and number of data points.
+\item independent is the same as independent-scott without the adjustment for dimension and number of data points.
+\item euclidean is the standard euclidean distance.
+}}
 }
 \value{
 A list giving the nodes and the objective function trajectory.
