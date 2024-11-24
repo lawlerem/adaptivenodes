@@ -71,7 +71,7 @@ adaptive_nodes<- function(
         if( "Jitter" %in% type ) {
             new_nodes<- nodes + MASS::mvrnorm(
                 n = nrow(nodes),
-                mu = cbind(c(0, 0)),
+                mu = cbind(numeric(ncol(nodes))),
                 Sigma = 0.001 * node_cov
             )
         }
@@ -84,12 +84,6 @@ adaptive_nodes<- function(
                 sample(nrow(data), size = 1),
 
             ]
-        }
-        if( "Add" %in% type ) {
-            new_nodes<- rbind(
-                nodes,
-                data[sample(nrow(data), size = 1), , drop = FALSE]
-            )
         }
         new_penalty<- penalty_function(
             data,
