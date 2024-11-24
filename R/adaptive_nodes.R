@@ -26,7 +26,7 @@ adaptive_nodes<- function(
         )
     ) {
     if( !("matrix" %in% class(data)) ) data<- as.matrix(data)
-    data<- data[complete.cases(data), ]
+    data<- data[complete.cases(data), , drop = FALSE]
     cov<- cov(data)
     precision<- solve(cov)
     if( distance_type[[1]] == "mahalanobis-scott" ) {
