@@ -11,9 +11,22 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// cross_distance
+Eigen::MatrixXd cross_distance(const Eigen::MatrixXd& x, const Eigen::MatrixXd& y, const Eigen::MatrixXd& precision);
+RcppExport SEXP _annodes_cross_distance(SEXP xSEXP, SEXP ySEXP, SEXP precisionSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type precision(precisionSEXP);
+    rcpp_result_gen = Rcpp::wrap(cross_distance(x, y, precision));
+    return rcpp_result_gen;
+END_RCPP
+}
 // penalty_function
 double penalty_function(const Eigen::MatrixXd& data, const Eigen::MatrixXd& nodes, const Eigen::MatrixXd& data_precision, const Eigen::MatrixXd& node_precision);
-RcppExport SEXP _adaptivenodes_penalty_function(SEXP dataSEXP, SEXP nodesSEXP, SEXP data_precisionSEXP, SEXP node_precisionSEXP) {
+RcppExport SEXP _annodes_penalty_function(SEXP dataSEXP, SEXP nodesSEXP, SEXP data_precisionSEXP, SEXP node_precisionSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -27,11 +40,12 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_adaptivenodes_penalty_function", (DL_FUNC) &_adaptivenodes_penalty_function, 4},
+    {"_annodes_cross_distance", (DL_FUNC) &_annodes_cross_distance, 3},
+    {"_annodes_penalty_function", (DL_FUNC) &_annodes_penalty_function, 4},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_adaptivenodes(DllInfo *dll) {
+RcppExport void R_init_annodes(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }

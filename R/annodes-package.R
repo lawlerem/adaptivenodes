@@ -6,6 +6,6 @@
 NULL
 
 ## usethis namespace: start
-#' @useDynLib adaptivenodes, .registration = TRUE
+#' @useDynLib annodes, .registration = TRUE
 ## usethis namespace: end
 NULL

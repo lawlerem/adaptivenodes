@@ -30,6 +30,7 @@ Eigen::MatrixXd self_distance(
     return d;
 }
 
+// [[Rcpp::export("cross_distance")]]
 Eigen::MatrixXd cross_distance(
         const Eigen::MatrixXd &x,
         const Eigen::MatrixXd &y,
