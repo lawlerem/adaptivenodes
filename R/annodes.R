@@ -14,7 +14,7 @@
 #' @return A list giving the nodes and the objective function trajectory.
 #' 
 #' @export
-adaptive_nodes<- function(
+annodes<- function(
         data,
         n_nodes = 10,
         max.it = 100,
