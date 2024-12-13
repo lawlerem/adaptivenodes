@@ -1,6 +1,7 @@
 #' Find a set of nodes to cover a dataset
 #' 
 #' @param data A matrix of data points. Each row should be a data point.
+#' @param n_grid A numeric vector giving the number of steps in each dimension when computing a kernel density estimate.
 #' @param n_nodes The number of nodes to cover the dataset.
 #' @param max.it The number of iterations to use when finding the best set of nodes.
 #' @param distance_type The type of distance to compute.
@@ -16,6 +17,7 @@
 #' @export
 annodes<- function(
         data,
+        n_grid = 20,
         n_nodes = 10,
         max.it = 100,
         distance_type = c(
@@ -29,6 +31,28 @@ annodes<- function(
     ) {
     if( !("matrix" %in% class(data)) ) data<- as.matrix(data)
     data<- data[complete.cases(data), , drop = FALSE]
+
+    n_grid<- rep_len(n_grid, length.out = ncol(data))
+    var_grids<- lapply(
+        seq(ncol(data)),
+        function(i) {
+            grid<- seq(
+                min(data[, i]),
+                max(data[, i]),
+                length.out = n_grid[i]
+            )
+            return(grid)
+        }
+    )
+    kde_field<- do.call(
+            expand.grid,
+            var_grids
+        ) |> as.matrix()
+    penalty_function<- function(data_kde, node_kde) {
+        hellinger<- sqrt(sum( (sqrt(data_kde) - sqrt(node_kde))^2 ))
+        return( hellinger )
+    }
+
     cov<- cov(data)
     precision<- solve(cov)
     if( distance_type[[1]] == "mahalanobis-scott" ) {
@@ -51,17 +75,15 @@ annodes<- function(
     }
     node_cov<- solve(node_precision)
 
+    data_kde<- kde(kde_field, data, data_precision)
+
     penalty_history<- data.frame(
         penalty = numeric(max.it + 2),
         operation = ""
     )
     nodes<- data[sample(nrow(data), size = n_nodes), , drop = FALSE]
-    penalty<- penalty_function(
-        data,
-        nodes,
-        data_precision,
-        node_precision
-    )
+    node_kde<- kde(kde_field, nodes, node_precision)
+    penalty<- penalty_function(data_kde, node_kde)
     best_nodes<- nodes
     best_penalty<- penalty
     penalty_history$penalty[1]<- penalty
@@ -87,16 +109,11 @@ annodes<- function(
         if( "Replace" %in% operation ) {
             new_nodes<- replace(
                 nodes,
-                data,
-                data_precision
+                data
             )
         }
-        new_penalty<- penalty_function(
-            data,
-            new_nodes,
-            data_precision,
-            node_precision
-        )
+        new_node_kde<- kde(kde_field, new_nodes, node_precision)
+        new_penalty<- penalty_function(data_kde, new_node_kde)
         if( accept(new_penalty, penalty, T, 0.1) ) {
             nodes<- new_nodes
             penalty<- new_penalty
@@ -181,33 +198,15 @@ jitter<- function(
 
 replace<- function(
         nodes,
-        data,
-        precision
+        data
     ) {
-    d<- cross_distance(
-        data,
-        nodes,
-        precision
-    )
-    node_min<- apply(
-        d,
-        MARGIN = 2,
-        FUN = min
-    )
-    data_min<- apply(
-        d,
-        MARGIN = 1,
-        FUN = min
-    )
     delete_idx<- sample(
         nrow(nodes),
-        size = 1,
-        prob = node_min / sum(node_min)
+        size = 1
     )
     add_idx<- sample(
         nrow(data),
-        size = 1,
-        prob = data_min / sum(data_min)
+        size = 1
     )
     nodes[delete_idx, ]<- data[add_idx, ]
     return(nodes)

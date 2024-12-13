@@ -6,6 +6,7 @@
 \usage{
 annodes(
   data,
+  n_grid = 20,
   n_nodes = 10,
   max.it = 100,
   distance_type = c("mahalanobis-scott", "mahalanobis", "independent-scott",
@@ -15,6 +16,8 @@ annodes(
 }
 \arguments{
 \item{data}{A matrix of data points. Each row should be a data point.}
+
+\item{n_grid}{A numeric vector giving the number of steps in each dimension when computing a kernel density estimate.}
 
 \item{n_nodes}{The number of nodes to cover the dataset.}
 

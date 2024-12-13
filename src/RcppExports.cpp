@@ -11,37 +11,22 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// cross_distance
-Eigen::MatrixXd cross_distance(const Eigen::MatrixXd& x, const Eigen::MatrixXd& y, const Eigen::MatrixXd& precision);
-RcppExport SEXP _annodes_cross_distance(SEXP xSEXP, SEXP ySEXP, SEXP precisionSEXP) {
+// kde
+Eigen::VectorXd kde(const Eigen::MatrixXd& x, const Eigen::MatrixXd& data, const Eigen::MatrixXd& precision);
+RcppExport SEXP _annodes_kde(SEXP xSEXP, SEXP dataSEXP, SEXP precisionSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type precision(precisionSEXP);
-    rcpp_result_gen = Rcpp::wrap(cross_distance(x, y, precision));
-    return rcpp_result_gen;
-END_RCPP
-}
-// penalty_function
-double penalty_function(const Eigen::MatrixXd& data, const Eigen::MatrixXd& nodes, const Eigen::MatrixXd& data_precision, const Eigen::MatrixXd& node_precision);
-RcppExport SEXP _annodes_penalty_function(SEXP dataSEXP, SEXP nodesSEXP, SEXP data_precisionSEXP, SEXP node_precisionSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type data(dataSEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type nodes(nodesSEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type data_precision(data_precisionSEXP);
-    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type node_precision(node_precisionSEXP);
-    rcpp_result_gen = Rcpp::wrap(penalty_function(data, nodes, data_precision, node_precision));
+    Rcpp::traits::input_parameter< const Eigen::MatrixXd& >::type precision(precisionSEXP);
+    rcpp_result_gen = Rcpp::wrap(kde(x, data, precision));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_annodes_cross_distance", (DL_FUNC) &_annodes_cross_distance, 3},
-    {"_annodes_penalty_function", (DL_FUNC) &_annodes_penalty_function, 4},
+    {"_annodes_kde", (DL_FUNC) &_annodes_kde, 3},
     {NULL, NULL, 0}
 };
 
